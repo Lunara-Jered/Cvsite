@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CV RENCONTRE</title>
+<title>DOSSIER // DANIEL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -155,7 +155,20 @@
     min-height:100vh; display:flex; flex-direction:column; justify-content:center;
     border-bottom:1px solid var(--line);
     padding-top:80px;
+    position:relative; overflow:hidden;
   }
+  .hero-portrait{
+    position:absolute; top:0; right:0; height:100%; width:44%;
+    overflow:hidden; pointer-events:none;
+    -webkit-mask-image:linear-gradient(to left, black 40%, transparent 92%);
+            mask-image:linear-gradient(to left, black 40%, transparent 92%);
+  }
+  .hero-portrait img{
+    width:100%; height:100%; object-fit:cover;
+    filter:grayscale(1) contrast(1.15) brightness(.6);
+    opacity:.55;
+  }
+  @media (max-width:900px){ .hero-portrait{ display:none; } }
   .hero-kicker{
     font-family:var(--mono); font-size:12px; letter-spacing:.2em;
     color:var(--ink-dim); margin-bottom:18px;
@@ -227,12 +240,45 @@
     position:relative; overflow:hidden;
   }
   .avatar svg{ width:100%; height:100%; display:block; }
+  .avatar img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    filter:grayscale(1) contrast(1.08) brightness(.92);
+    transition:filter .5s ease;
+  }
+  .avatar:hover img{ filter:grayscale(.35) contrast(1.05) brightness(1); }
   .avatar::after{
     content:'PHOTO CLASSIFIÉE';
     position:absolute; bottom:12px; left:12px;
     font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
     color:var(--ink-dim);
+    background:rgba(0,0,0,.45); padding:3px 7px;
   }
+
+  /* ---------- portrait strip (traits section) ---------- */
+  .portrait-strip{
+    display:flex; gap:22px; margin-top:36px;
+  }
+  .portrait-strip figure{
+    flex:1; margin:0; border:1px solid var(--line);
+    background:var(--panel); padding:10px 10px 14px;
+  }
+  .portrait-strip .ph{
+    aspect-ratio:3/4; overflow:hidden; margin-bottom:10px;
+  }
+  .portrait-strip img{
+    width:100%; height:100%; object-fit:cover;
+    filter:grayscale(1) contrast(1.1) brightness(.95);
+    transition:filter .4s ease, transform .5s ease;
+  }
+  .portrait-strip figure:hover img{
+    filter:grayscale(.3) contrast(1.05) brightness(1);
+    transform:scale(1.03);
+  }
+  .portrait-strip figcaption{
+    font-family:var(--mono); font-size:10px; letter-spacing:.1em;
+    color:var(--ink-dim); text-transform:uppercase;
+  }
+  @media (max-width:560px){ .portrait-strip{ flex-direction:column; } }
 
   .id-fields{
     display:grid; grid-template-columns:1fr 1fr; gap:22px 30px;
@@ -296,18 +342,26 @@
     clip-path:polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
     background:var(--panel);
     border:1px solid var(--line);
-    display:flex; align-items:center; justify-content:center;
+    display:flex; align-items:flex-end; justify-content:center;
     font-family:var(--mono); font-size:10.5px; letter-spacing:.08em;
     color:var(--ink-dim); text-align:center; padding:20px;
     position:relative; overflow:hidden;
   }
-  .hex span{ position:relative; z-index:1; }
+  .hex img{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    filter:grayscale(1) contrast(1.1) brightness(.65);
+    transition:filter .45s ease, transform .5s ease;
+  }
+  .hex:hover img{ filter:grayscale(.25) contrast(1.05) brightness(.85); transform:scale(1.06); }
+  .hex span{
+    position:relative; z-index:1; color:var(--ink);
+    padding-bottom:6px;
+  }
   .hex::before{
     content:''; position:absolute; inset:0;
-    background:linear-gradient(135deg, rgba(63,167,150,.14), rgba(232,163,61,.1));
-    opacity:0; transition:opacity .4s ease;
+    background:linear-gradient(180deg, rgba(11,12,14,0) 35%, rgba(11,12,14,.88) 100%);
+    z-index:0; transition:opacity .4s ease;
   }
-  .hex:hover::before{ opacity:1; }
   .hex-row{ display:flex; gap:16px; }
   .hex-row .hex{ flex:1; }
 
@@ -337,6 +391,23 @@
   .blur-content p{ margin-bottom:16px; }
   .blur-content p:last-child{ margin-bottom:0; }
   .blurwrap.open .blur-content{ filter:blur(0); user-select:auto; }
+
+  .sensitive-media{
+    float:right; width:180px; aspect-ratio:3/4;
+    margin:0 0 16px 22px; overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .sensitive-media img{
+    width:100%; height:100%; object-fit:cover;
+    filter:grayscale(1) contrast(1.1) brightness(.7) blur(9px);
+    transition:filter .6s ease;
+  }
+  .blurwrap.open .sensitive-media img{
+    filter:grayscale(.4) contrast(1.05) brightness(.9) blur(0);
+  }
+  @media (max-width:560px){
+    .sensitive-media{ float:none; width:100%; max-width:220px; margin:0 auto 18px; }
+  }
 
   .reveal-btn{
     position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
@@ -485,6 +556,9 @@
 
   <!-- ============ HERO ============ -->
   <section id="hero">
+    <div class="hero-portrait">
+      <img src="20260620_032057.jpg" alt="">
+    </div>
     <div class="hero-kicker">DOSSIER N°001 — SUJET <span>« DANIEL »</span></div>
     <h1 class="title"><span class="fill">INFORMATION</span></h1>
     <p class="hero-lede">
@@ -509,17 +583,7 @@
 
     <div class="id-grid">
       <div class="avatar reveal">
-        <svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice">
-          <defs>
-            <linearGradient id="silhouetteGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#26292e"/>
-              <stop offset="100%" stop-color="#0a0b0d"/>
-            </linearGradient>
-          </defs>
-          <rect width="300" height="400" fill="url(#silhouetteGrad)"/>
-          <circle cx="150" cy="140" r="58" fill="#1a1c20"/>
-          <path d="M60 400 C60 280 100 230 150 230 C200 230 240 280 240 400 Z" fill="#1a1c20"/>
-        </svg>
+        <img src="8506f058-5858-447e-b566-46a39f546e93.png" alt="Portrait de Daniel en costume">
       </div>
 
       <div>
@@ -570,6 +634,16 @@
         </ul>
       </div>
     </div>
+    <div class="portrait-strip reveal">
+      <figure>
+        <div class="ph"><img src="51344a11-d963-4503-9f75-0572b3d65e17.png" alt="Daniel en pull bordeaux"></div>
+        <figcaption>Pièce jointe — 01</figcaption>
+      </figure>
+      <figure>
+        <div class="ph"><img src="IMG-20230507-WA0010.jpg" alt="Daniel, selfie"></div>
+        <figcaption>Pièce jointe — 02</figcaption>
+      </figure>
+    </div>
   </section>
 
   <!-- ============ PASSIONS ============ -->
@@ -592,12 +666,24 @@
       </div>
       <div class="hex-wrap">
         <div class="hex-row">
-          <div class="hex"><span>SPORT<br>Foot · Rugby · Basket</span></div>
-          <div class="hex"><span>CODE<br>Sécurité &amp; systèmes</span></div>
+          <div class="hex">
+            <img src="394a8514c21be4c0fc80e3d2a9879019.jpg" alt="Sport">
+            <span>SPORT<br>Foot · Rugby · Basket</span>
+          </div>
+          <div class="hex">
+            <img src="57ea898844b18668b14be3a189928999.jpg" alt="Code">
+            <span>CODE<br>Sécurité &amp; systèmes</span>
+          </div>
         </div>
         <div class="hex-row">
-          <div class="hex"><span>PHOTOGRAPHIE<br>Œil pour la composition</span></div>
-          <div class="hex"><span>SCIENCE<br>Mythologie · Spiritualité</span></div>
+          <div class="hex">
+            <img src="WhatsApp Image 2024-11-29 at 06.28.42(1).jpeg" alt="Photographie">
+            <span>PHOTOGRAPHIE<br>Œil pour la composition</span>
+          </div>
+          <div class="hex">
+            <img src="da1d97a6-ca92-4f4a-900d-c49340a5c8eb.png" alt="">
+            <span>CORPS &amp; SCIENCE<br>Curiosité anatomique</span>
+          </div>
         </div>
       </div>
     </div>
@@ -611,6 +697,9 @@
       <div class="warn-head">Contenu sensible — cliquez pour révéler</div>
       <div class="blurwrap" id="blurwrap">
         <div class="blur-content">
+          <div class="sensitive-media">
+            <img src="424615b4-d660-4c73-ba1d-f0c88c747cf8.png" alt="">
+          </div>
           <p>C'est quelqu'un de très à l'aise avec son corps : il ne trouve aucun problème à se sentir bien dans sa peau ou à s'assumer pleinement, comme si le regard des autres ne lui faisait ni chaud ni froid.</p>
           <p>Il aime se montrer confiant — comme s'il vivait avec l'envie constante de prouver qu'il prend soin de lui (bon, il va à la salle pour ça, donc...).</p>
           <p>C'est aussi quelqu'un de discret sur sa vie privée : même moi, je n'ai pas accès à tout, et il n'aime pas particulièrement qu'on parle de ce qu'il partage — ou avec qui.</p>
