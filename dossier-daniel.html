@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DOSSIER // DANIEL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0b0c0e;
+    --bg-2: #121417;
+    --panel: #16181c;
+    --ink: #eef0ee;
+    --ink-dim: #9aa0a6;
+    --line: #2a2d32;
+    --amber: #e8a33d;
+    --teal: #3fa796;
+    --red: #c1543f;
+    --mono: 'JetBrains Mono', monospace;
+    --body: 'Inter', sans-serif;
+    --display: 'Archivo Black', sans-serif;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--body);
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* ---------- grain + scanline overlay ---------- */
+  .grain{
+    position:fixed; inset:0; pointer-events:none; z-index:999;
+    opacity:.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .scanlines{
+    position:fixed; inset:0; pointer-events:none; z-index:998;
+    background:repeating-linear-gradient(
+      to bottom, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px,
+      transparent 1px, transparent 3px
+    );
+  }
+
+  ::selection{ background:var(--amber); color:#0b0c0e; }
+
+  /* ---------- scrollbar ---------- */
+  ::-webkit-scrollbar{ width:9px; }
+  ::-webkit-scrollbar-track{ background:var(--bg); }
+  ::-webkit-scrollbar-thumb{ background:var(--line); }
+
+  /* ============================================================
+     GATE SCREEN
+  ============================================================ */
+  #gate{
+    position:fixed; inset:0; z-index:1000;
+    background:#000;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+    transition:opacity .9s ease, visibility .9s ease;
+  }
+  #gate.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
+
+  .terminal{
+    width:100%; max-width:640px;
+    border:1px solid var(--line);
+    background:linear-gradient(180deg, #101215, #0a0b0d);
+    box-shadow:0 0 0 1px rgba(232,163,61,.06), 0 40px 80px rgba(0,0,0,.6);
+  }
+  .terminal-bar{
+    display:flex; align-items:center; gap:8px;
+    padding:10px 14px;
+    border-bottom:1px solid var(--line);
+    font-family:var(--mono); font-size:11px; color:var(--ink-dim);
+    letter-spacing:.08em;
+  }
+  .dot{ width:8px; height:8px; border-radius:50%; background:#3a3d42; }
+  .terminal-body{
+    padding:28px 26px 26px;
+    font-family:var(--mono);
+    font-size:13.5px; line-height:1.85;
+    color:#c9cdd1;
+    min-height:220px;
+  }
+  .terminal-body .lbl{ color:var(--amber); }
+  .terminal-body .name{ color:var(--ink); font-weight:700; }
+  #typed{ white-space:pre-wrap; }
+  .cursor{
+    display:inline-block; width:8px; height:15px;
+    background:var(--amber); vertical-align:-2px;
+    animation:blink 1s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .gate-btn{
+    margin-top:26px;
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:var(--mono); font-size:12.5px; letter-spacing:.1em;
+    text-transform:uppercase;
+    background:transparent; color:var(--amber);
+    border:1px solid var(--amber);
+    padding:12px 20px; cursor:pointer;
+    opacity:0; transform:translateY(6px);
+    transition:opacity .5s ease, transform .5s ease, background .25s ease, color .25s ease;
+  }
+  .gate-btn.show{ opacity:1; transform:translateY(0); }
+  .gate-btn:hover{ background:var(--amber); color:#0b0c0e; }
+  .gate-btn:focus-visible{ outline:2px solid var(--teal); outline-offset:3px; }
+
+  /* ============================================================
+     GLOBAL LAYOUT
+  ============================================================ */
+  main{
+    max-width:1180px; margin:0 auto;
+    padding:0 28px;
+  }
+  section{ position:relative; padding:120px 0; border-bottom:1px solid var(--line); }
+  section:last-of-type{ border-bottom:none; }
+
+  .eyebrow{
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--teal);
+    display:flex; align-items:center; gap:10px; margin-bottom:22px;
+  }
+  .eyebrow::before{
+    content:''; width:22px; height:1px; background:var(--teal);
+  }
+
+  .reveal{
+    opacity:0; transform:translateY(28px);
+    transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);
+  }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- Stamp ---------- */
+  .stamp{
+    position:absolute; top:36px; right:8px;
+    font-family:var(--mono); font-size:11px; letter-spacing:.15em;
+    color:var(--red); border:1px solid var(--red);
+    padding:6px 10px; transform:rotate(6deg);
+    opacity:.85;
+  }
+
+  /* ============================================================
+     HERO
+  ============================================================ */
+  #hero{
+    min-height:100vh; display:flex; flex-direction:column; justify-content:center;
+    border-bottom:1px solid var(--line);
+    padding-top:80px;
+  }
+  .hero-kicker{
+    font-family:var(--mono); font-size:12px; letter-spacing:.2em;
+    color:var(--ink-dim); margin-bottom:18px;
+  }
+  .hero-kicker span{ color:var(--amber); }
+
+  h1.title{
+    font-family:var(--display);
+    font-size:clamp(58px, 12vw, 148px);
+    line-height:.92;
+    letter-spacing:-.01em;
+    color:transparent;
+    -webkit-text-stroke:1.4px var(--ink);
+    position:relative;
+    margin-bottom:34px;
+  }
+  h1.title .fill{
+    -webkit-text-stroke:0px;
+    color:var(--ink);
+    display:inline-block;
+    overflow:hidden;
+    width:0;
+    white-space:nowrap;
+    animation:fillIn 1.8s .4s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes fillIn{ to{ width:100%; } }
+
+  .hero-lede{
+    max-width:620px;
+    font-size:17px; line-height:1.75; color:#c7cbce;
+  }
+  .hero-lede b{ color:var(--amber); font-weight:700; }
+
+  .hero-meta{
+    margin-top:56px;
+    display:flex; gap:36px; flex-wrap:wrap;
+    font-family:var(--mono); font-size:12px; color:var(--ink-dim);
+  }
+  .hero-meta div span{ display:block; color:var(--ink); font-size:14px; margin-top:4px; }
+
+  .scroll-hint{
+    position:absolute; bottom:40px; left:28px;
+    font-family:var(--mono); font-size:11px; color:var(--ink-dim);
+    display:flex; align-items:center; gap:10px;
+  }
+  .scroll-hint .bar{
+    width:1px; height:34px; background:var(--line); position:relative; overflow:hidden;
+  }
+  .scroll-hint .bar::after{
+    content:''; position:absolute; top:-40px; left:0; width:100%; height:40px;
+    background:var(--amber);
+    animation:slide 1.8s ease-in-out infinite;
+  }
+  @keyframes slide{ 0%{ top:-40px; } 100%{ top:34px; } }
+
+  /* ============================================================
+     IDENTITY / DOSSIER CARD
+  ============================================================ */
+  .id-grid{
+    display:grid; grid-template-columns:220px 1fr; gap:60px;
+  }
+  @media (max-width:820px){ .id-grid{ grid-template-columns:1fr; gap:40px; } }
+
+  .avatar{
+    width:100%; aspect-ratio:3/4;
+    background:
+      radial-gradient(120% 80% at 50% 0%, #23262b, #0c0d0f 70%);
+    border:1px solid var(--line);
+    position:relative; overflow:hidden;
+  }
+  .avatar svg{ width:100%; height:100%; display:block; }
+  .avatar::after{
+    content:'PHOTO CLASSIFIÉE';
+    position:absolute; bottom:12px; left:12px;
+    font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
+    color:var(--ink-dim);
+  }
+
+  .id-fields{
+    display:grid; grid-template-columns:1fr 1fr; gap:22px 30px;
+    margin-bottom:36px;
+  }
+  .field{ border-left:2px solid var(--line); padding-left:14px; }
+  .field .k{ font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; color:var(--ink-dim); text-transform:uppercase; }
+  .field .v{ font-size:17px; margin-top:5px; font-weight:600; }
+  .field.hot{ border-left-color:var(--amber); }
+
+  .id-text p{ font-size:15.5px; line-height:1.85; color:#c7cbce; margin-bottom:16px; }
+  .id-text p:last-child{ margin-bottom:0; }
+
+  /* ============================================================
+     QUALITES / DEFAUTS
+  ============================================================ */
+  .qd-grid{ display:grid; grid-template-columns:1fr 1fr; gap:2px; background:var(--line); border:1px solid var(--line); }
+  @media (max-width:720px){ .qd-grid{ grid-template-columns:1fr; } }
+  .qd-col{ background:var(--bg); padding:38px 34px; }
+  .qd-head{ display:flex; align-items:center; gap:10px; margin-bottom:26px; }
+  .qd-head .dotc{ width:9px; height:9px; border-radius:50%; }
+  .qd-col.q .dotc{ background:var(--teal); }
+  .qd-col.d .dotc{ background:var(--red); }
+  .qd-head h3{ font-family:var(--mono); font-size:13px; letter-spacing:.14em; text-transform:uppercase; }
+  .qd-list{ list-style:none; }
+  .qd-list li{
+    display:flex; align-items:baseline; gap:12px;
+    padding:11px 0; border-bottom:1px dashed var(--line);
+    font-size:15px; color:#d3d6d9;
+    opacity:0; transform:translateX(-10px);
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .qd-list li.in{ opacity:1; transform:translateX(0); }
+  .qd-list li:last-child{ border-bottom:none; }
+  .qd-list li::before{
+    font-family:var(--mono); font-size:12px; flex:none;
+  }
+  .qd-col.q .qd-list li::before{ content:'+'; color:var(--teal); }
+  .qd-col.d .qd-list li::before{ content:'–'; color:var(--red); }
+
+  /* ============================================================
+     PASSIONS
+  ============================================================ */
+  .passions{ display:grid; grid-template-columns:1.2fr .8fr; gap:60px; align-items:start; }
+  @media (max-width:900px){ .passions{ grid-template-columns:1fr; } }
+  .passion-text p{ font-size:15.5px; line-height:1.9; color:#c7cbce; margin-bottom:18px; }
+  .passion-text b{ color:var(--ink); }
+
+  .tag-cloud{ display:flex; flex-wrap:wrap; gap:10px; margin-top:26px; }
+  .tag{
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.05em;
+    border:1px solid var(--line); color:var(--ink-dim);
+    padding:7px 12px;
+    transition:border-color .3s ease, color .3s ease, transform .3s ease;
+  }
+  .tag:hover{ border-color:var(--amber); color:var(--amber); transform:translateY(-2px); }
+
+  .hex-wrap{ display:flex; flex-direction:column; gap:16px; }
+  .hex{
+    aspect-ratio:1/1;
+    clip-path:polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+    background:var(--panel);
+    border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.08em;
+    color:var(--ink-dim); text-align:center; padding:20px;
+    position:relative; overflow:hidden;
+  }
+  .hex span{ position:relative; z-index:1; }
+  .hex::before{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(135deg, rgba(63,167,150,.14), rgba(232,163,61,.1));
+    opacity:0; transition:opacity .4s ease;
+  }
+  .hex:hover::before{ opacity:1; }
+  .hex-row{ display:flex; gap:16px; }
+  .hex-row .hex{ flex:1; }
+
+  /* ============================================================
+     SENSITIVE SECTION
+  ============================================================ */
+  #sensitive{ text-align:left; }
+  .warn-box{
+    border:1px solid var(--red);
+    background:linear-gradient(180deg, rgba(193,84,63,.06), transparent);
+    padding:30px 30px 26px;
+  }
+  .warn-box .warn-head{
+    font-family:var(--mono); font-size:12px; letter-spacing:.15em;
+    color:var(--red); text-transform:uppercase;
+    display:flex; align-items:center; gap:10px; margin-bottom:16px;
+  }
+  .warn-head::before{ content:'⚠'; font-size:15px; }
+
+  .blurwrap{ position:relative; }
+  .blur-content{
+    filter:blur(9px);
+    user-select:none;
+    transition:filter .6s ease;
+    font-size:15.5px; line-height:1.9; color:#c7cbce;
+  }
+  .blur-content p{ margin-bottom:16px; }
+  .blur-content p:last-child{ margin-bottom:0; }
+  .blurwrap.open .blur-content{ filter:blur(0); user-select:auto; }
+
+  .reveal-btn{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-family:var(--mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+    background:#0b0c0e; color:var(--ink);
+    border:1px solid var(--ink-dim);
+    padding:13px 22px; cursor:pointer;
+    transition:border-color .25s ease, color .25s ease;
+    white-space:nowrap;
+  }
+  .reveal-btn:hover{ border-color:var(--amber); color:var(--amber); }
+  .blurwrap.open .reveal-btn{ display:none; }
+
+  /* ============================================================
+     FOOTER / CLOSING
+  ============================================================ */
+  #closing{ text-align:center; padding:140px 0 100px; border-bottom:none; }
+  .closing-line{
+    font-family:var(--display);
+    font-size:clamp(26px, 4.6vw, 46px);
+    line-height:1.25; letter-spacing:-.01em;
+    -webkit-text-stroke:1px var(--ink);
+    color:transparent;
+    max-width:820px; margin:0 auto;
+  }
+  footer{
+    font-family:var(--mono); font-size:11px; letter-spacing:.1em;
+    color:var(--ink-dim); text-align:center; padding:34px 0 50px;
+  }
+
+  h2.section-title{
+    font-family:var(--display);
+    font-size:clamp(30px, 5vw, 52px);
+    letter-spacing:-.01em;
+    margin-bottom:44px;
+    line-height:1.05;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+  }
+
+  /* ============================================================
+     RESPONSIVE — TABLETTE (≤ 900px déjà géré en partie plus haut)
+  ============================================================ */
+  @media (max-width:900px){
+    main{ padding:0 22px; }
+    section{ padding:90px 0; }
+    .hero-meta{ gap:26px; }
+  }
+
+  /* ============================================================
+     RESPONSIVE — MOBILE (≤ 680px)
+  ============================================================ */
+  @media (max-width:680px){
+    main{ padding:0 18px; }
+    section{ padding:64px 0; }
+
+    /* Gate / terminal */
+    .terminal-body{ padding:22px 18px 20px; font-size:12.5px; line-height:1.75; }
+    .terminal-bar{ padding:9px 12px; font-size:10px; }
+    .gate-btn{
+      width:100%; justify-content:center; text-align:center;
+      padding:14px 16px; font-size:11.5px;
+    }
+
+    /* Hero */
+    #hero{ padding-top:64px; min-height:100svh; }
+    .hero-kicker{ font-size:10.5px; letter-spacing:.14em; }
+    h1.title{ margin-bottom:24px; }
+    .hero-lede{ font-size:15px; line-height:1.7; }
+    .hero-meta{
+      margin-top:40px; gap:20px 28px;
+      flex-direction:column;
+    }
+    .scroll-hint{ display:none; }
+
+    /* Section titles / eyebrows */
+    .eyebrow{ font-size:10.5px; margin-bottom:16px; }
+    h2.section-title{ margin-bottom:30px; }
+    .stamp{
+      position:static; display:inline-block;
+      margin-bottom:18px; transform:none;
+    }
+
+    /* Identity */
+    .id-grid{ gap:28px; }
+    .avatar{ aspect-ratio:4/3; max-width:220px; margin:0 auto; }
+    .id-fields{ grid-template-columns:1fr 1fr; gap:16px 18px; margin-bottom:26px; }
+    .field .v{ font-size:15.5px; }
+    .id-text p{ font-size:14.5px; }
+
+    /* Qualités / Défauts */
+    .qd-col{ padding:26px 20px; }
+    .qd-list li{ font-size:14px; padding:10px 0; }
+
+    /* Passions */
+    .passion-text p{ font-size:14.5px; }
+    .hex-row{ gap:12px; }
+    .hex{ padding:14px; font-size:9.5px; }
+    .tag{ font-size:11px; padding:6px 10px; }
+
+    /* Sensitive */
+    .warn-box{ padding:22px 18px 20px; }
+    .blur-content{ font-size:14.5px; }
+    .reveal-btn{
+      font-size:11px; padding:12px 16px;
+      width:calc(100% - 40px); max-width:280px;
+    }
+
+    /* Closing */
+    #closing{ padding:90px 0 70px; }
+  }
+
+  /* ============================================================
+     RESPONSIVE — PETIT MOBILE (≤ 420px)
+  ============================================================ */
+  @media (max-width:420px){
+    .id-fields{ grid-template-columns:1fr; }
+    .hex-row{ flex-direction:column; }
+    .hero-meta{ font-size:11px; }
+    .terminal-body{ font-size:11.5px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="scanlines"></div>
+
+<!-- ============ GATE ============ -->
+<div id="gate">
+  <div class="terminal">
+    <div class="terminal-bar">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span style="margin-left:6px;">ACCES_DOSSIER.SYS</span>
+    </div>
+    <div class="terminal-body">
+      <div id="typed"></div>
+      <button class="gate-btn" id="gateBtn">J'ai compris, entrer dans le dossier →</button>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <section id="hero">
+    <div class="hero-kicker">DOSSIER N°001 — SUJET <span>« DANIEL »</span></div>
+    <h1 class="title"><span class="fill">INFORMATION</span></h1>
+    <p class="hero-lede">
+      Ce site regroupe les informations disponibles sur l'individu nommé
+      <b>« Daniel »</b>. Certaines informations peuvent heurter la sensibilité.
+      Si vous ne consentez pas à les découvrir, il est encore temps de partir.
+      À ceux qui sont restés — bonne lecture.
+    </p>
+    <div class="hero-meta">
+      <div>STATUT<span>Célibataire</span></div>
+      <div>CLASSIFICATION<span>Analyste Cybersécurité</span></div>
+      <div>NIVEAU D'ACCÈS<span style="color:var(--amber);">Rapproché</span></div>
+    </div>
+    <div class="scroll-hint"><div class="bar"></div>DÉFILER</div>
+  </section>
+
+  <!-- ============ IDENTITY ============ -->
+  <section id="identity">
+    <div class="stamp">CONFIDENTIEL</div>
+    <div class="eyebrow reveal">01 — Identité</div>
+    <h2 class="section-title reveal">Fiche signalétique</h2>
+
+    <div class="id-grid">
+      <div class="avatar reveal">
+        <svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="silhouetteGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#26292e"/>
+              <stop offset="100%" stop-color="#0a0b0d"/>
+            </linearGradient>
+          </defs>
+          <rect width="300" height="400" fill="url(#silhouetteGrad)"/>
+          <circle cx="150" cy="140" r="58" fill="#1a1c20"/>
+          <path d="M60 400 C60 280 100 230 150 230 C200 230 240 280 240 400 Z" fill="#1a1c20"/>
+        </svg>
+      </div>
+
+      <div>
+        <div class="id-fields">
+          <div class="field hot reveal"><div class="k">Prénoms</div><div class="v">Daniel Jérémie Amour</div></div>
+          <div class="field reveal"><div class="k">Pseudonyme</div><div class="v">The Handsome Genius, Dr Doom</div></div>
+          <div class="field reveal"><div class="k">Âge</div><div class="v">23 ans</div></div>
+          <div class="field reveal"><div class="k">Profession</div><div class="v">Analyste Cybersécurité</div></div>
+          <div class="field reveal"><div class="k">Situation</div><div class="v">Célibataire</div></div>
+          <div class="field reveal"><div class="k">Origines</div><div class="v">Benga (père) · Awandji (mère)</div></div>
+        </div>
+        <div class="id-text reveal">
+          <p>Avec son sens de l'humour atypique, il trouve toujours, quand il est de bonheur, un jeu de mots pour taquiner ou pour faire rire son interlocuteur.</p>
+          <p>Génie des sciences et des littératures — je vous conseillerais plutôt de lui demander ce qu'il ne sait <em>pas</em> faire, la liste sera bien plus courte.</p>
+          <p>Il aime les langues et met très souvent ses pensées sous forme de poème. Originaire de deux ethnies du Gabon, il met un point d'honneur à respecter ces cultures.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ QUALITES / DEFAUTS ============ -->
+  <section id="traits">
+    <div class="eyebrow reveal">02 — Profil comportemental</div>
+    <h2 class="section-title reveal">Qualités &amp; défauts</h2>
+    <div class="qd-grid reveal">
+      <div class="qd-col q">
+        <div class="qd-head"><span class="dotc"></span><h3>Qualités</h3></div>
+        <ul class="qd-list">
+          <li>Soucieux des autres</li>
+          <li>Véridique</li>
+          <li>Mesure ses propos</li>
+          <li>À l'écoute</li>
+          <li>Compréhensif</li>
+          <li>Intelligence émotionnelle</li>
+          <li>Génie</li>
+          <li>Drôle</li>
+        </ul>
+      </div>
+      <div class="qd-col d">
+        <div class="qd-head"><span class="dotc"></span><h3>Défauts</h3></div>
+        <ul class="qd-list">
+          <li>Arrogant</li>
+          <li>Chiche</li>
+          <li>Menfoutiste</li>
+          <li>Rancunier</li>
+          <li>Colérique</li>
+          <li>Aime trop la femme</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PASSIONS ============ -->
+  <section id="passions">
+    <div class="eyebrow reveal">03 — Centres d'intérêt</div>
+    <h2 class="section-title reveal">Passions</h2>
+    <div class="passions">
+      <div class="passion-text reveal">
+        <p>C'est un geek et un vrai passionné — moi-même, ça me fait peur parfois. Il aime le sport sous toutes ses formes et le pratique activement : <b>foot, rugby, basket</b>, sans oublier son goût pour la <b>formule 1</b> et le <b>tennis</b>.</p>
+        <p>Il aime aussi tout ce qui touche à la science, un domaine où je suis largement dépassé par lui. Il mélange science, mythologie, spiritualité et religion pour en faire un ensemble fascinant — disons simplement qu'il est fan de <b>découverte</b>.</p>
+        <p>Autre grande passion : la <b>photographie</b>. Il s'y investit à fond, même dans les plus petits projets, et sait comment motiver et encourager les personnes qu'il photographie.</p>
+        <p>Sa passion la plus singulière reste le <b>corps humain</b>. Son regard insistant peut sembler intense — en réalité, il étudie simplement les formes et les courbes avec la curiosité d'un scientifique.</p>
+        <div class="tag-cloud">
+          <span class="tag">#Otaku</span>
+          <span class="tag">#CultureGeek</span>
+          <span class="tag">#Poésie</span>
+          <span class="tag">#Cybersécurité</span>
+          <span class="tag">#Langues</span>
+        </div>
+      </div>
+      <div class="hex-wrap">
+        <div class="hex-row">
+          <div class="hex"><span>SPORT<br>Foot · Rugby · Basket</span></div>
+          <div class="hex"><span>CODE<br>Sécurité &amp; systèmes</span></div>
+        </div>
+        <div class="hex-row">
+          <div class="hex"><span>PHOTOGRAPHIE<br>Œil pour la composition</span></div>
+          <div class="hex"><span>SCIENCE<br>Mythologie · Spiritualité</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SENSITIVE ============ -->
+  <section id="sensitive">
+    <div class="eyebrow reveal">04 — Zone sensible</div>
+    <h2 class="section-title reveal">Le dernier point — là où on perd du monde</h2>
+    <div class="warn-box reveal">
+      <div class="warn-head">Contenu sensible — cliquez pour révéler</div>
+      <div class="blurwrap" id="blurwrap">
+        <div class="blur-content">
+          <p>C'est quelqu'un de très à l'aise avec son corps : il ne trouve aucun problème à se sentir bien dans sa peau ou à s'assumer pleinement, comme si le regard des autres ne lui faisait ni chaud ni froid.</p>
+          <p>Il aime se montrer confiant — comme s'il vivait avec l'envie constante de prouver qu'il prend soin de lui (bon, il va à la salle pour ça, donc...).</p>
+          <p>C'est aussi quelqu'un de discret sur sa vie privée : même moi, je n'ai pas accès à tout, et il n'aime pas particulièrement qu'on parle de ce qu'il partage — ou avec qui.</p>
+        </div>
+        <button class="reveal-btn" id="revealBtn">🔒 Afficher le contenu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CLOSING ============ -->
+  <section id="closing">
+    <div class="closing-line reveal">
+      « C'était tout ce que vous aviez besoin de savoir sur lui, en surface —
+      pour toute relation plus rapprochée, à vous de le découvrir. »
+    </div>
+  </section>
+
+</main>
+
+<footer>FIN DU DOSSIER — ACCÈS ENREGISTRÉ · {{DATE}}</footer>
+
+<script>
+  // ---------- Gate typing effect ----------
+  const fullText = [
+    "> Ouverture du dossier...",
+    "",
+    "Ce site web regroupe les informations sur l'individu nommé \"DANIEL\".",
+    "Certaines informations peuvent heurter la sensibilité.",
+    "Si vous ne consentez pas à les découvrir, partez.",
+    "",
+    "À ceux qui sont restés, bonne lecture."
+  ].join("\n");
+
+  const typedEl = document.getElementById('typed');
+  const gateBtn = document.getElementById('gateBtn');
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+
+  let i = 0;
+  function typeNext(){
+    if(i <= fullText.length){
+      typedEl.textContent = fullText.slice(0, i);
+      typedEl.appendChild(cursor);
+      i++;
+      setTimeout(typeNext, 14 + Math.random()*18);
+    } else {
+      gateBtn.classList.add('show');
+    }
+  }
+  typeNext();
+
+  document.getElementById('gateBtn').addEventListener('click', () => {
+    document.getElementById('gate').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+  });
+
+  // ---------- Reveal on scroll ----------
+  const revealEls = document.querySelectorAll('.reveal, .qd-list li');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach((el, idx) => {
+    if(el.classList.contains('qd-list') === false){
+      el.style.transitionDelay = (idx % 6) * 0.06 + 's';
+    }
+    io.observe(el);
+  });
+
+  // stagger qd list items individually
+  document.querySelectorAll('.qd-list').forEach(list => {
+    [...list.children].forEach((li, idx) => {
+      li.style.transitionDelay = (idx * 0.07) + 's';
+    });
+  });
+
+  // ---------- Sensitive content reveal ----------
+  const blurwrap = document.getElementById('blurwrap');
+  const revealBtn = document.getElementById('revealBtn');
+  revealBtn.addEventListener('click', () => {
+    blurwrap.classList.add('open');
+  });
+
+  // ---------- Footer date ----------
+  document.querySelector('footer').textContent =
+    document.querySelector('footer').textContent.replace(
+      '{{DATE}}',
+      new Date().toLocaleDateString('fr-FR', { year:'numeric', month:'long', day:'numeric' })
+    );
+</script>
+
+</body>
+</html>
