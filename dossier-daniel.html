@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DOSSIER // DANIEL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #05070d;
+    --bg-2: #0a0e1a;
+    --panel: #0e1220;
+    --panel-2: #131829;
+    --ink: #f4f6fb;
+    --ink-dim: #8a93ab;
+    --line: #232a3d;
+    --red: #ff2545;
+    --red-dark: #9e0f28;
+    --violet: #8b3bff;
+    --cyan: #29e0ff;
+    --gold: #ffc233;
+    --mono: 'JetBrains Mono', monospace;
+    --body: 'Inter', sans-serif;
+    --display: 'Anton', sans-serif;
+    --head: 'Oswald', sans-serif;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--body);
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* ---------- ambient energy background ---------- */
+  body::before{
+    content:''; position:fixed; inset:0; z-index:-2; pointer-events:none;
+    background:
+      radial-gradient(60% 45% at 85% -5%, rgba(255,37,69,.22), transparent 60%),
+      radial-gradient(55% 40% at 8% 8%, rgba(139,59,255,.18), transparent 60%),
+      radial-gradient(70% 50% at 50% 110%, rgba(41,224,255,.08), transparent 60%),
+      var(--bg);
+  }
+  body::after{
+    content:''; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:repeating-linear-gradient(
+      115deg, rgba(255,255,255,.025) 0px, rgba(255,255,255,.025) 1px,
+      transparent 1px, transparent 46px
+    );
+  }
+
+  /* ---------- grain + halftone + scanline overlay ---------- */
+  .grain{
+    position:fixed; inset:0; pointer-events:none; z-index:999;
+    opacity:.045; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .scanlines{
+    position:fixed; inset:0; pointer-events:none; z-index:998;
+    background:repeating-linear-gradient(
+      to bottom, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px,
+      transparent 1px, transparent 3px
+    );
+  }
+
+  ::selection{ background:var(--red); color:#fff; }
+
+  /* ---------- scrollbar ---------- */
+  ::-webkit-scrollbar{ width:9px; }
+  ::-webkit-scrollbar-track{ background:var(--bg); }
+  ::-webkit-scrollbar-thumb{ background:linear-gradient(var(--red), var(--violet)); }
+
+  /* ============================================================
+     TOP NAV (HUD bar)
+  ============================================================ */
+  #hud-nav{
+    position:fixed; top:0; left:0; right:0; z-index:500;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 30px;
+    background:rgba(5,7,13,.55);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+    transform:translateY(-100%);
+    transition:transform .6s cubic-bezier(.2,.8,.2,1);
+  }
+  #hud-nav.show{ transform:translateY(0); }
+  .hud-logo{
+    font-family:var(--display); font-style:italic; letter-spacing:.02em;
+    font-size:16px; color:var(--ink);
+    display:flex; align-items:center; gap:8px;
+  }
+  .hud-logo .chip{
+    background:linear-gradient(120deg, var(--red), var(--violet));
+    color:#fff; font-family:var(--mono); font-style:normal; font-size:10px;
+    letter-spacing:.1em; padding:3px 7px;
+    clip-path:polygon(6px 0,100% 0,100% 100%,0 100%,0 6px);
+  }
+  .hud-links{ display:flex; gap:26px; }
+  .hud-links a{
+    font-family:var(--head); font-size:12.5px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--ink-dim); text-decoration:none;
+    position:relative; padding-bottom:3px;
+    transition:color .25s ease;
+  }
+  .hud-links a::after{
+    content:''; position:absolute; left:0; bottom:0; width:0; height:2px;
+    background:linear-gradient(90deg, var(--red), var(--violet));
+    transition:width .3s ease;
+  }
+  .hud-links a:hover{ color:var(--ink); }
+  .hud-links a:hover::after{ width:100%; }
+  @media (max-width:720px){ .hud-links{ display:none; } }
+
+  /* ============================================================
+     GATE SCREEN
+  ============================================================ */
+  #gate{
+    position:fixed; inset:0; z-index:1000;
+    background:#020305;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+    transition:opacity .9s ease, visibility .9s ease;
+  }
+  #gate.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
+  #gate::before{
+    content:''; position:absolute; inset:0;
+    background:
+      radial-gradient(50% 40% at 80% 0%, rgba(255,37,69,.16), transparent 60%),
+      radial-gradient(50% 40% at 15% 100%, rgba(139,59,255,.14), transparent 60%);
+  }
+
+  .terminal{
+    position:relative; width:100%; max-width:640px;
+    border:1px solid var(--line);
+    background:linear-gradient(180deg, #0c1018, #05070d);
+    box-shadow:0 0 0 1px rgba(255,37,69,.12), 0 0 60px rgba(139,59,255,.12), 0 40px 90px rgba(0,0,0,.7);
+    clip-path:polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+  }
+  .terminal-bar{
+    display:flex; align-items:center; gap:8px;
+    padding:10px 14px;
+    border-bottom:1px solid var(--line);
+    font-family:var(--mono); font-size:11px; color:var(--ink-dim);
+    letter-spacing:.08em;
+    background:linear-gradient(90deg, rgba(255,37,69,.08), transparent 40%);
+  }
+  .dot{ width:8px; height:8px; border-radius:50%; background:#2a3146; }
+  .terminal-body{
+    padding:28px 26px 26px;
+    font-family:var(--mono);
+    font-size:13.5px; line-height:1.85;
+    color:#c3c9dc;
+    min-height:220px;
+  }
+  .terminal-body .lbl{ color:var(--gold); }
+  .terminal-body .name{ color:var(--ink); font-weight:700; }
+  #typed{ white-space:pre-wrap; }
+  .cursor{
+    display:inline-block; width:8px; height:15px;
+    background:var(--red); vertical-align:-2px;
+    animation:blink 1s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .gate-btn{
+    margin-top:26px;
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:var(--head); font-size:13px; letter-spacing:.08em;
+    text-transform:uppercase; font-weight:600; font-style:italic;
+    background:transparent; color:var(--ink);
+    border:1px solid var(--red);
+    padding:13px 24px; cursor:pointer;
+    clip-path:polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    opacity:0; transform:translateY(6px);
+    transition:opacity .5s ease, transform .5s ease, background .25s ease, color .25s ease, box-shadow .25s ease;
+  }
+  .gate-btn.show{ opacity:1; transform:translateY(0); }
+  .gate-btn:hover{
+    background:linear-gradient(120deg, var(--red), var(--violet));
+    color:#fff; border-color:transparent;
+    box-shadow:0 0 24px rgba(255,37,69,.5);
+  }
+  .gate-btn:focus-visible{ outline:2px solid var(--cyan); outline-offset:3px; }
+
+  /* ============================================================
+     GLOBAL LAYOUT
+  ============================================================ */
+  main{
+    max-width:1180px; margin:0 auto;
+    padding:0 28px;
+  }
+  section{ position:relative; padding:130px 0; border-bottom:1px solid var(--line); }
+  section:last-of-type{ border-bottom:none; }
+
+  .eyebrow{
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--cyan);
+    display:flex; align-items:center; gap:10px; margin-bottom:22px;
+  }
+  .eyebrow::before{
+    content:''; width:26px; height:2px;
+    background:linear-gradient(90deg, var(--red), var(--violet));
+  }
+
+  .reveal{
+    opacity:0; transform:translateY(28px);
+    transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);
+  }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- Stamp ---------- */
+  .stamp{
+    position:absolute; top:36px; right:8px;
+    font-family:var(--head); font-size:11px; letter-spacing:.12em; font-weight:600;
+    text-transform:uppercase;
+    color:#fff; background:linear-gradient(120deg, var(--red), var(--red-dark));
+    padding:7px 14px;
+    clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);
+    transform:rotate(4deg);
+    box-shadow:0 6px 18px rgba(255,37,69,.35);
+  }
+
+  /* ============================================================
+     HERO
+  ============================================================ */
+  #hero{
+    min-height:100vh; display:flex; flex-direction:column; justify-content:center;
+    border-bottom:1px solid var(--line);
+    padding-top:80px;
+    position:relative; overflow:hidden;
+  }
+  .hero-portrait{
+    position:absolute; top:0; right:0; height:100%; width:48%;
+    overflow:hidden; pointer-events:none;
+    clip-path:polygon(14% 0, 100% 0, 100% 100%, 0% 100%);
+    -webkit-mask-image:linear-gradient(to left, black 45%, transparent 95%);
+            mask-image:linear-gradient(to left, black 45%, transparent 95%);
+  }
+  .hero-portrait img{
+    width:100%; height:100%; object-fit:cover;
+    filter:grayscale(.6) contrast(1.25) brightness(.55) saturate(1.4) sepia(.15) hue-rotate(-20deg);
+    opacity:.75;
+  }
+  .hero-portrait::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(255,37,69,.15), rgba(139,59,255,.2));
+    mix-blend-mode:color;
+  }
+  @media (max-width:900px){ .hero-portrait{ display:none; } }
+  .hero-kicker{
+    font-family:var(--mono); font-size:12px; letter-spacing:.2em;
+    color:var(--ink-dim); margin-bottom:18px;
+  }
+  .hero-kicker span{ color:var(--red); font-weight:700; }
+
+  h1.title{
+    font-family:var(--display);
+    font-weight:400; font-style:normal;
+    font-size:clamp(58px, 12vw, 150px);
+    line-height:.88;
+    letter-spacing:.01em;
+    transform:skewX(-4deg);
+    transform-origin:left;
+    color:transparent;
+    -webkit-text-stroke:1.4px rgba(244,246,251,.9);
+    position:relative;
+    margin-bottom:34px;
+  }
+  h1.title .fill{
+    -webkit-text-stroke:0px;
+    background:linear-gradient(100deg, var(--red) 0%, var(--red) 35%, var(--violet) 75%, var(--cyan) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 0 22px rgba(255,37,69,.35));
+    display:inline-block;
+    overflow:hidden;
+    width:0;
+    white-space:nowrap;
+    animation:fillIn 1.8s .4s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes fillIn{ to{ width:100%; } }
+
+  .hero-lede{
+    max-width:620px;
+    font-size:17px; line-height:1.75; color:#c3c9dc;
+  }
+  .hero-lede b{ color:var(--red); font-weight:700; }
+
+  .hero-meta{
+    margin-top:56px;
+    display:flex; gap:14px; flex-wrap:wrap;
+  }
+  .hero-meta div{
+    font-family:var(--mono); font-size:11px; color:var(--ink-dim);
+    border:1px solid var(--line); background:rgba(255,255,255,.02);
+    padding:10px 16px;
+    clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  }
+  .hero-meta div span{ display:block; color:var(--ink); font-size:14px; margin-top:4px; font-family:var(--head); letter-spacing:.03em; }
+
+  .scroll-hint{
+    position:absolute; bottom:40px; left:28px;
+    font-family:var(--mono); font-size:11px; color:var(--ink-dim);
+    display:flex; align-items:center; gap:10px;
+  }
+  .scroll-hint .bar{
+    width:1px; height:34px; background:var(--line); position:relative; overflow:hidden;
+  }
+  .scroll-hint .bar::after{
+    content:''; position:absolute; top:-40px; left:0; width:100%; height:40px;
+    background:linear-gradient(var(--red), var(--violet));
+    animation:slide 1.8s ease-in-out infinite;
+  }
+  @keyframes slide{ 0%{ top:-40px; } 100%{ top:34px; } }
+
+  /* ============================================================
+     IDENTITY / DOSSIER CARD
+  ============================================================ */
+  .id-grid{
+    display:grid; grid-template-columns:220px 1fr; gap:60px;
+  }
+  @media (max-width:820px){ .id-grid{ grid-template-columns:1fr; gap:40px; } }
+
+  .avatar{
+    width:100%; aspect-ratio:3/4;
+    background:
+      radial-gradient(120% 80% at 50% 0%, #1a2036, #0a0d16 70%);
+    border:1px solid var(--line);
+    position:relative; overflow:hidden;
+    clip-path:polygon(0 0, 100% 0, 100% calc(100% - 26px), calc(100% - 26px) 100%, 0 100%);
+    box-shadow:0 0 0 1px rgba(255,37,69,.15);
+  }
+  .avatar::before{
+    content:''; position:absolute; inset:0; z-index:2; pointer-events:none;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.04), inset 0 -60px 60px -30px rgba(255,37,69,.25);
+  }
+  .avatar svg{ width:100%; height:100%; display:block; }
+  .avatar img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    filter:grayscale(.7) contrast(1.15) brightness(.85) saturate(1.2);
+    transition:filter .5s ease;
+  }
+  .avatar:hover img{ filter:grayscale(.15) contrast(1.08) brightness(.95); }
+  .avatar::after{
+    content:'ID CARD // 001';
+    position:absolute; bottom:14px; left:14px; z-index:3;
+    font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
+    color:var(--ink);
+    background:rgba(5,7,13,.55); padding:3px 8px;
+    border-left:2px solid var(--red);
+  }
+
+  /* ---------- portrait strip (traits section) ---------- */
+  .portrait-strip{
+    display:flex; gap:22px; margin-top:36px;
+  }
+  .portrait-strip figure{
+    flex:1; margin:0; border:1px solid var(--line);
+    background:var(--panel); padding:10px 10px 14px;
+    clip-path:polygon(0 0, 100% 0, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  }
+  .portrait-strip .ph{
+    aspect-ratio:3/4; overflow:hidden; margin-bottom:10px;
+  }
+  .portrait-strip img{
+    width:100%; height:100%; object-fit:cover;
+    filter:grayscale(.7) contrast(1.15) brightness(.9);
+    transition:filter .4s ease, transform .5s ease;
+  }
+  .portrait-strip figure:hover img{
+    filter:grayscale(.15) contrast(1.08) brightness(1);
+    transform:scale(1.03);
+  }
+  .portrait-strip figure:hover{ border-color:var(--red); }
+  .portrait-strip figcaption{
+    font-family:var(--mono); font-size:10px; letter-spacing:.1em;
+    color:var(--ink-dim); text-transform:uppercase;
+  }
+  @media (max-width:560px){ .portrait-strip{ flex-direction:column; } }
+
+  .id-fields{
+    display:grid; grid-template-columns:1fr 1fr; gap:22px 30px;
+    margin-bottom:36px;
+  }
+  .field{
+    border-left:3px solid var(--line); padding:6px 0 6px 14px;
+    position:relative; transition:border-color .3s ease;
+  }
+  .field .k{ font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; color:var(--ink-dim); text-transform:uppercase; }
+  .field .v{ font-size:17px; margin-top:5px; font-weight:700; font-family:var(--head); letter-spacing:.02em; }
+  .field.hot{ border-left-color:var(--red); }
+  .field.hot .v{ color:var(--red); }
+
+  .id-text p{ font-size:15.5px; line-height:1.85; color:#c3c9dc; margin-bottom:16px; }
+  .id-text p:last-child{ margin-bottom:0; }
+
+  /* ============================================================
+     QUALITES / DEFAUTS
+  ============================================================ */
+  .qd-grid{ display:grid; grid-template-columns:1fr 1fr; gap:2px; background:var(--line); border:1px solid var(--line); }
+  @media (max-width:720px){ .qd-grid{ grid-template-columns:1fr; } }
+  .qd-col{ background:var(--bg); padding:38px 34px; position:relative; overflow:hidden; }
+  .qd-col::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  }
+  .qd-col.q::before{ background:linear-gradient(90deg, var(--cyan), transparent); }
+  .qd-col.d::before{ background:linear-gradient(90deg, var(--red), transparent); }
+  .qd-head{ display:flex; align-items:center; gap:10px; margin-bottom:26px; }
+  .qd-head .dotc{ width:9px; height:9px; }
+  .qd-col.q .dotc{ background:var(--cyan); clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%); }
+  .qd-col.d .dotc{ background:var(--red); border-radius:50%; }
+  .qd-head h3{ font-family:var(--head); font-size:14px; letter-spacing:.14em; text-transform:uppercase; font-weight:600; }
+  .qd-list{ list-style:none; }
+  .qd-list li{
+    display:flex; align-items:baseline; gap:12px;
+    padding:11px 0; border-bottom:1px dashed var(--line);
+    font-size:15px; color:#d4d8e6;
+    opacity:0; transform:translateX(-10px);
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .qd-list li.in{ opacity:1; transform:translateX(0); }
+  .qd-list li:last-child{ border-bottom:none; }
+  .qd-list li::before{
+    font-family:var(--mono); font-size:12px; flex:none; font-weight:700;
+  }
+  .qd-col.q .qd-list li::before{ content:'▲'; color:var(--cyan); }
+  .qd-col.d .qd-list li::before{ content:'▼'; color:var(--red); }
+
+  /* ============================================================
+     PASSIONS
+  ============================================================ */
+  .passions{ display:grid; grid-template-columns:1.2fr .8fr; gap:60px; align-items:start; }
+  @media (max-width:900px){ .passions{ grid-template-columns:1fr; } }
+  .passion-text p{ font-size:15.5px; line-height:1.9; color:#c3c9dc; margin-bottom:18px; }
+  .passion-text b{ color:var(--red); }
+
+  .tag-cloud{ display:flex; flex-wrap:wrap; gap:10px; margin-top:26px; }
+  .tag{
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.05em;
+    border:1px solid var(--line); color:var(--ink-dim);
+    padding:7px 14px;
+    clip-path:polygon(8px 0,100% 0,100% 100%,0 100%,0 8px);
+    transition:border-color .3s ease, color .3s ease, transform .3s ease, background .3s ease;
+  }
+  .tag:hover{ border-color:var(--red); color:#fff; transform:translateY(-2px); background:linear-gradient(120deg, rgba(255,37,69,.25), rgba(139,59,255,.2)); }
+
+  .hex-wrap{ display:flex; flex-direction:column; gap:18px; }
+  .hex{
+    aspect-ratio:1/1;
+    clip-path:polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+    background:var(--panel);
+    border:1px solid var(--line);
+    display:flex; align-items:flex-end; justify-content:center;
+    font-family:var(--head); font-size:11px; letter-spacing:.08em; font-weight:600;
+    color:var(--ink-dim); text-align:center; padding:22px;
+    position:relative; overflow:hidden;
+    transition:filter .4s ease;
+  }
+  .hex:hover{ filter:drop-shadow(0 0 18px rgba(255,37,69,.45)); }
+  .hex img{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    filter:grayscale(.6) contrast(1.15) brightness(.6) saturate(1.3);
+    transition:filter .45s ease, transform .5s ease;
+  }
+  .hex:hover img{ filter:grayscale(.1) contrast(1.1) brightness(.8) saturate(1.2); transform:scale(1.06); }
+  .hex span{
+    position:relative; z-index:1; color:#fff;
+    padding-bottom:8px; text-transform:uppercase;
+  }
+  .hex::before{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(5,7,13,0) 30%, rgba(5,7,13,.92) 100%);
+    z-index:0; transition:opacity .4s ease;
+  }
+  .hex::after{
+    content:''; position:absolute; inset:0; z-index:0; opacity:0;
+    background:linear-gradient(140deg, rgba(255,37,69,.35), rgba(139,59,255,.3));
+    mix-blend-mode:color; transition:opacity .4s ease;
+  }
+  .hex:hover::after{ opacity:1; }
+  .hex-row{ display:flex; gap:18px; }
+  .hex-row .hex{ flex:1; }
+
+  /* ============================================================
+     SENSITIVE SECTION
+  ============================================================ */
+  #sensitive{ text-align:left; }
+  .warn-box{
+    border:1px solid var(--red);
+    background:linear-gradient(180deg, rgba(255,37,69,.08), transparent);
+    padding:30px 30px 26px;
+    position:relative; overflow:hidden;
+    clip-path:polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+  }
+  .warn-box::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:6px;
+    background:repeating-linear-gradient(-45deg, var(--red) 0 14px, #1a0308 14px 28px);
+    opacity:.85;
+  }
+  .warn-box .warn-head{
+    font-family:var(--head); font-size:13px; letter-spacing:.12em; font-weight:600;
+    color:var(--red); text-transform:uppercase;
+    display:flex; align-items:center; gap:10px; margin:14px 0 16px;
+  }
+  .warn-head::before{ content:'⚠'; font-size:15px; }
+
+  .blurwrap{ position:relative; }
+  .blur-content{
+    filter:blur(9px);
+    user-select:none;
+    transition:filter .6s ease;
+    font-size:15.5px; line-height:1.9; color:#c3c9dc;
+  }
+  .blur-content p{ margin-bottom:16px; }
+  .blur-content p:last-child{ margin-bottom:0; }
+  .blurwrap.open .blur-content{ filter:blur(0); user-select:auto; }
+
+  .sensitive-media{
+    float:right; width:180px; aspect-ratio:3/4;
+    margin:0 0 16px 22px; overflow:hidden;
+    border:1px solid var(--line);
+    clip-path:polygon(0 0, 100% 0, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  }
+  .sensitive-media img{
+    width:100%; height:100%; object-fit:cover;
+    filter:grayscale(.7) contrast(1.15) brightness(.6) blur(9px);
+    transition:filter .6s ease;
+  }
+  .blurwrap.open .sensitive-media img{
+    filter:grayscale(.2) contrast(1.08) brightness(.85) blur(0);
+  }
+  @media (max-width:560px){
+    .sensitive-media{ float:none; width:100%; max-width:220px; margin:0 auto 18px; }
+  }
+
+  .reveal-btn{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-family:var(--head); font-size:12.5px; letter-spacing:.08em; font-weight:600; font-style:italic;
+    text-transform:uppercase;
+    background:#05070d; color:var(--ink);
+    border:1px solid var(--ink-dim);
+    padding:14px 24px; cursor:pointer;
+    clip-path:polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    transition:border-color .25s ease, color .25s ease, background .25s ease, box-shadow .25s ease;
+    white-space:nowrap;
+  }
+  .reveal-btn:hover{
+    border-color:transparent; color:#fff;
+    background:linear-gradient(120deg, var(--red), var(--violet));
+    box-shadow:0 0 24px rgba(255,37,69,.45);
+  }
+  .blurwrap.open .reveal-btn{ display:none; }
+
+  /* ============================================================
+     FOOTER / CLOSING
+  ============================================================ */
+  #closing{ text-align:center; padding:150px 0 110px; border-bottom:none; }
+  .closing-line{
+    font-family:var(--display); font-weight:400;
+    font-size:clamp(26px, 4.6vw, 48px);
+    line-height:1.25; letter-spacing:.01em;
+    transform:skewX(-3deg);
+    background:linear-gradient(100deg, var(--ink), var(--red) 50%, var(--violet));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    max-width:820px; margin:0 auto;
+  }
+  footer{
+    font-family:var(--mono); font-size:11px; letter-spacing:.1em;
+    color:var(--ink-dim); text-align:center; padding:34px 0 50px;
+  }
+
+  h2.section-title{
+    font-family:var(--display); font-weight:400;
+    font-size:clamp(30px, 5vw, 54px);
+    letter-spacing:.01em;
+    transform:skewX(-3deg); transform-origin:left;
+    margin-bottom:44px;
+    line-height:1.05;
+    color:var(--ink);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+  }
+
+  /* ============================================================
+     RESPONSIVE — TABLETTE (≤ 900px déjà géré en partie plus haut)
+  ============================================================ */
+  @media (max-width:900px){
+    main{ padding:0 22px; }
+    section{ padding:90px 0; }
+    .hero-meta{ gap:10px; }
+  }
+
+  /* ============================================================
+     RESPONSIVE — MOBILE (≤ 680px)
+  ============================================================ */
+  @media (max-width:680px){
+    main{ padding:0 18px; }
+    section{ padding:64px 0; }
+
+    #hud-nav{ padding:13px 18px; }
+
+    /* Gate / terminal */
+    .terminal-body{ padding:22px 18px 20px; font-size:12.5px; line-height:1.75; }
+    .terminal-bar{ padding:9px 12px; font-size:10px; }
+    .gate-btn{
+      width:100%; justify-content:center; text-align:center;
+      padding:14px 16px; font-size:12px;
+    }
+
+    /* Hero */
+    #hero{ padding-top:64px; min-height:100svh; }
+    .hero-kicker{ font-size:10.5px; letter-spacing:.14em; }
+    h1.title{ margin-bottom:24px; }
+    .hero-lede{ font-size:15px; line-height:1.7; }
+    .hero-meta{
+      margin-top:40px; gap:10px;
+      flex-direction:column;
+    }
+    .hero-meta div{ width:100%; }
+    .scroll-hint{ display:none; }
+
+    /* Section titles / eyebrows */
+    .eyebrow{ font-size:10.5px; margin-bottom:16px; }
+    h2.section-title{ margin-bottom:30px; }
+    .stamp{
+      position:static; display:inline-block;
+      margin-bottom:18px; transform:none;
+    }
+
+    /* Identity */
+    .id-grid{ gap:28px; }
+    .avatar{ aspect-ratio:4/3; max-width:220px; margin:0 auto; }
+    .id-fields{ grid-template-columns:1fr 1fr; gap:16px 18px; margin-bottom:26px; }
+    .field .v{ font-size:15.5px; }
+    .id-text p{ font-size:14.5px; }
+
+    /* Qualités / Défauts */
+    .qd-col{ padding:26px 20px; }
+    .qd-list li{ font-size:14px; padding:10px 0; }
+
+    /* Passions */
+    .passion-text p{ font-size:14.5px; }
+    .hex-row{ gap:12px; }
+    .hex{ padding:14px; font-size:9.5px; }
+    .tag{ font-size:11px; padding:6px 10px; }
+
+    /* Sensitive */
+    .warn-box{ padding:22px 18px 20px; }
+    .blur-content{ font-size:14.5px; }
+    .reveal-btn{
+      font-size:11px; padding:12px 16px;
+      width:calc(100% - 40px); max-width:280px;
+    }
+
+    /* Closing */
+    #closing{ padding:90px 0 70px; }
+  }
+
+  /* ============================================================
+     RESPONSIVE — PETIT MOBILE (≤ 420px)
+  ============================================================ */
+  @media (max-width:420px){
+    .id-fields{ grid-template-columns:1fr; }
+    .hex-row{ flex-direction:column; }
+    .hero-meta{ font-size:11px; }
+    .terminal-body{ font-size:11.5px; }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="scanlines"></div>
+
+<!-- ============ GATE ============ -->
+<div id="gate">
+  <div class="terminal">
+    <div class="terminal-bar">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span style="margin-left:6px;">ACCES_DOSSIER.SYS</span>
+    </div>
+    <div class="terminal-body">
+      <div id="typed"></div>
+      <button class="gate-btn" id="gateBtn">J'ai compris, entrer dans le dossier →</button>
+    </div>
+  </div>
+</div>
+
+<nav id="hud-nav">
+  <div class="hud-logo"><span class="chip">DOSSIER</span> DANIEL</div>
+  <div class="hud-links">
+    <a href="#identity">Identité</a>
+    <a href="#traits">Profil</a>
+    <a href="#passions">Passions</a>
+    <a href="#sensitive">Zone sensible</a>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <section id="hero">
+    <div class="hero-portrait">
+      <img src="https://github.com/Lunara-Jered/Cvsite/blob/main/20260620_032057.jpg?raw=true" alt="">
+    </div>
+    <div class="hero-kicker">DOSSIER N°001 — SUJET <span>« DANIEL »</span></div>
+    <h1 class="title"><span class="fill">INFORMATION</span></h1>
+    <p class="hero-lede">
+      Ce site regroupe les informations disponibles sur l'individu nommé
+      <b>« Daniel »</b>. Certaines informations peuvent heurter la sensibilité.
+      Si vous ne consentez pas à les découvrir, il est encore temps de partir.
+      À ceux qui sont restés — bonne lecture.
+    </p>
+    <div class="hero-meta">
+      <div>STATUT<span>Célibataire</span></div>
+      <div>CLASSIFICATION<span>Analyste Cybersécurité</span></div>
+      <div>NIVEAU D'ACCÈS<span style="color:var(--amber);">Rapproché</span></div>
+    </div>
+    <div class="scroll-hint"><div class="bar"></div>DÉFILER</div>
+  </section>
+
+  <!-- ============ IDENTITY ============ -->
+  <section id="identity">
+    <div class="stamp">CONFIDENTIEL</div>
+    <div class="eyebrow reveal">01 — Identité</div>
+    <h2 class="section-title reveal">Fiche signalétique</h2>
+
+    <div class="id-grid">
+      <div class="avatar reveal">
+        <img src="https://github.com/Lunara-Jered/Cvsite/blob/main/8506f058-5858-447e-b566-46a39f546e93.png?raw=true" alt="Portrait de Daniel en costume">
+      </div>
+
+      <div>
+        <div class="id-fields">
+          <div class="field hot reveal"><div class="k">Prénoms</div><div class="v">Daniel Jérémie Amour</div></div>
+          <div class="field reveal"><div class="k">Pseudonyme</div><div class="v">The Handsome Genius, Dr Doom</div></div>
+          <div class="field reveal"><div class="k">Âge</div><div class="v">23 ans</div></div>
+          <div class="field reveal"><div class="k">Profession</div><div class="v">Analyste Cybersécurité</div></div>
+          <div class="field reveal"><div class="k">Situation</div><div class="v">Célibataire</div></div>
+          <div class="field reveal"><div class="k">Origines</div><div class="v">Benga (père) · Awandji (mère)</div></div>
+        </div>
+        <div class="id-text reveal">
+          <p>Avec son sens de l'humour atypique, il trouve toujours, quand il est de bonheur, un jeu de mots pour taquiner ou pour faire rire son interlocuteur.</p>
+          <p>Génie des sciences et des littératures — je vous conseillerais plutôt de lui demander ce qu'il ne sait <em>pas</em> faire, la liste sera bien plus courte.</p>
+          <p>Il aime les langues et met très souvent ses pensées sous forme de poème. Originaire de deux ethnies du Gabon, il met un point d'honneur à respecter ces cultures.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ QUALITES / DEFAUTS ============ -->
+  <section id="traits">
+    <div class="eyebrow reveal">02 — Profil comportemental</div>
+    <h2 class="section-title reveal">Qualités &amp; défauts</h2>
+    <div class="qd-grid reveal">
+      <div class="qd-col q">
+        <div class="qd-head"><span class="dotc"></span><h3>Qualités</h3></div>
+        <ul class="qd-list">
+          <li>Soucieux des autres</li>
+          <li>Véridique</li>
+          <li>Mesure ses propos</li>
+          <li>À l'écoute</li>
+          <li>Compréhensif</li>
+          <li>Intelligence émotionnelle</li>
+          <li>Génie</li>
+          <li>Drôle</li>
+        </ul>
+      </div>
+      <div class="qd-col d">
+        <div class="qd-head"><span class="dotc"></span><h3>Défauts</h3></div>
+        <ul class="qd-list">
+          <li>Arrogant</li>
+          <li>Chiche</li>
+          <li>Menfoutiste</li>
+          <li>Rancunier</li>
+          <li>Colérique</li>
+          <li>Aime trop la femme</li>
+        </ul>
+      </div>
+    </div>
+    <div class="portrait-strip reveal">
+      <figure>
+        <div class="ph"><img src="https://github.com/Lunara-Jered/Cvsite/blob/main/51344a11-d963-4503-9f75-0572b3d65e17.png?raw=true" alt="Daniel en pull bordeaux"></div>
+        <figcaption>Pièce jointe — 01</figcaption>
+      </figure>
+      <figure>
+        <div class="ph"><img src="https://github.com/Lunara-Jered/Cvsite/blob/main/IMG-20230507-WA0010.jpg?raw=true" alt="Daniel, selfie"></div>
+        <figcaption>Pièce jointe — 02</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ PASSIONS ============ -->
+  <section id="passions">
+    <div class="eyebrow reveal">03 — Centres d'intérêt</div>
+    <h2 class="section-title reveal">Passions</h2>
+    <div class="passions">
+      <div class="passion-text reveal">
+        <p>C'est un geek et un vrai passionné — moi-même, ça me fait peur parfois. Il aime le sport sous toutes ses formes et le pratique activement : <b>foot, rugby, basket</b>, sans oublier son goût pour la <b>formule 1</b> et le <b>tennis</b>.</p>
+        <p>Il aime aussi tout ce qui touche à la science, un domaine où je suis largement dépassé par lui. Il mélange science, mythologie, spiritualité et religion pour en faire un ensemble fascinant — disons simplement qu'il est fan de <b>découverte</b>.</p>
+        <p>Autre grande passion : la <b>photographie</b>. Il s'y investit à fond, même dans les plus petits projets, et sait comment motiver et encourager les personnes qu'il photographie.</p>
+        <p>Sa passion la plus singulière reste le <b>corps humain</b>. Son regard insistant peut sembler intense — en réalité, il étudie simplement les formes et les courbes avec la curiosité d'un scientifique.</p>
+        <div class="tag-cloud">
+          <span class="tag">#Otaku</span>
+          <span class="tag">#CultureGeek</span>
+          <span class="tag">#Poésie</span>
+          <span class="tag">#Cybersécurité</span>
+          <span class="tag">#Langues</span>
+        </div>
+      </div>
+      <div class="hex-wrap">
+        <div class="hex-row">
+          <div class="hex">
+            <img src="https://github.com/Lunara-Jered/Cvsite/blob/main/394a8514c21be4c0fc80e3d2a9879019.jpg?raw=true" alt="Sport">
+            <span>SPORT<br>Foot · Rugby · Basket</span>
+          </div>
+          <div class="hex">
+            <img src="https://github.com/Lunara-Jered/Cvsite/blob/main/57ea898844b18668b14be3a189928999.jpg?raw=true" alt="Code">
+            <span>CODE<br>Sécurité &amp; systèmes</span>
+          </div>
+        </div>
+        <div class="hex-row">
+          <div class="hex">
+            <img src="https://github.com/Lunara-Jered/Cvsite/blob/main/WhatsApp%20Image%202024-11-29%20at%2006.28.42(1).jpeg?raw=true" alt="Photographie">
+            <span>PHOTOGRAPHIE<br>Œil pour la composition</span>
+          </div>
+          <div class="hex">
+            <img src="https://github.com/Lunara-Jered/Cvsite/blob/main/da1d97a6-ca92-4f4a-900d-c49340a5c8eb.png?raw=true" alt="">
+            <span>CORPS &amp; SCIENCE<br>Curiosité anatomique</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SENSITIVE ============ -->
+  <section id="sensitive">
+    <div class="eyebrow reveal">04 — Zone sensible</div>
+    <h2 class="section-title reveal">Le dernier point — là où on perd du monde</h2>
+    <div class="warn-box reveal">
+      <div class="warn-head">Contenu sensible — cliquez pour révéler</div>
+      <div class="blurwrap" id="blurwrap">
+        <div class="blur-content">
+          <div class="sensitive-media">
+            <img src="https://github.com/Lunara-Jered/Cvsite/blob/main/da1d97a6-ca92-4f4a-900d-c49340a5c8eb.png?raw=true" alt="">
+          </div>
+          <p>C'est quelqu'un de très à l'aise avec son corps : il ne trouve aucun problème à se sentir bien dans sa peau ou à s'assumer pleinement, comme si le regard des autres ne lui faisait ni chaud ni froid.</p>
+          <p>Il aime se montrer confiant — comme s'il vivait avec l'envie constante de prouver qu'il prend soin de lui (bon, il va à la salle pour ça, donc...).</p>
+          <p>C'est aussi quelqu'un de discret sur sa vie privée : même moi, je n'ai pas accès à tout, et il n'aime pas particulièrement qu'on parle de ce qu'il partage — ou avec qui.</p>
+        </div>
+        <button class="reveal-btn" id="revealBtn">🔒 Afficher le contenu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CLOSING ============ -->
+  <section id="closing">
+    <div class="closing-line reveal">
+      « C'était tout ce que vous aviez besoin de savoir sur lui, en surface —
+      pour toute relation plus rapprochée, à vous de le découvrir. »
+    </div>
+  </section>
+
+</main>
+
+<footer>FIN DU DOSSIER — ACCÈS ENREGISTRÉ · {{DATE}}</footer>
+
+<script>
+  // ---------- Gate typing effect ----------
+  const fullText = [
+    "> Ouverture du dossier...",
+    "",
+    "Ce site web regroupe les informations sur l'individu nommé \"DANIEL\".",
+    "Certaines informations peuvent heurter la sensibilité.",
+    "Si vous ne consentez pas à les découvrir, partez.",
+    "",
+    "À ceux qui sont restés, bonne lecture."
+  ].join("\n");
+
+  const typedEl = document.getElementById('typed');
+  const gateBtn = document.getElementById('gateBtn');
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+
+  let i = 0;
+  function typeNext(){
+    if(i <= fullText.length){
+      typedEl.textContent = fullText.slice(0, i);
+      typedEl.appendChild(cursor);
+      i++;
+      setTimeout(typeNext, 14 + Math.random()*18);
+    } else {
+      gateBtn.classList.add('show');
+    }
+  }
+  typeNext();
+
+  document.getElementById('gateBtn').addEventListener('click', () => {
+    document.getElementById('gate').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+  });
+
+  // ---------- Reveal on scroll ----------
+  const revealEls = document.querySelectorAll('.reveal, .qd-list li');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach((el, idx) => {
+    if(el.classList.contains('qd-list') === false){
+      el.style.transitionDelay = (idx % 6) * 0.06 + 's';
+    }
+    io.observe(el);
+  });
+
+  // stagger qd list items individually
+  document.querySelectorAll('.qd-list').forEach(list => {
+    [...list.children].forEach((li, idx) => {
+      li.style.transitionDelay = (idx * 0.07) + 's';
+    });
+  });
+
+  // ---------- Sensitive content reveal ----------
+  const blurwrap = document.getElementById('blurwrap');
+  const revealBtn = document.getElementById('revealBtn');
+  revealBtn.addEventListener('click', () => {
+    blurwrap.classList.add('open');
+  });
+
+  // ---------- HUD nav show on scroll ----------
+  const hudNav = document.getElementById('hud-nav');
+  window.addEventListener('scroll', () => {
+    if(window.scrollY > 80){ hudNav.classList.add('show'); }
+    else{ hudNav.classList.remove('show'); }
+  });
+
+  // ---------- Footer date ----------
+  document.querySelector('footer').textContent =
+    document.querySelector('footer').textContent.replace(
+      '{{DATE}}',
+      new Date().toLocaleDateString('fr-FR', { year:'numeric', month:'long', day:'numeric' })
+    );
+</script>
+
+</body>
+</html>
