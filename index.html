@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CV Rencontre</title>
+<title>DOSSIER // DANIEL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -305,21 +305,6 @@
   }
   .hero-meta div span{ display:block; color:var(--ink); font-size:14px; margin-top:4px; font-family:var(--head); letter-spacing:.03em; }
 
-  .scroll-hint{
-    position:absolute; bottom:40px; left:28px;
-    font-family:var(--mono); font-size:11px; color:var(--ink-dim);
-    display:flex; align-items:center; gap:10px;
-  }
-  .scroll-hint .bar{
-    width:1px; height:34px; background:var(--line); position:relative; overflow:hidden;
-  }
-  .scroll-hint .bar::after{
-    content:''; position:absolute; top:-40px; left:0; width:100%; height:40px;
-    background:linear-gradient(var(--red), var(--violet));
-    animation:slide 1.8s ease-in-out infinite;
-  }
-  @keyframes slide{ 0%{ top:-40px; } 100%{ top:34px; } }
-
   /* ============================================================
      IDENTITY / DOSSIER CARD
   ============================================================ */
@@ -406,7 +391,7 @@
   ============================================================ */
   .qd-grid{ display:grid; grid-template-columns:1fr 1fr; gap:2px; background:var(--line); border:1px solid var(--line); }
   @media (max-width:720px){ .qd-grid{ grid-template-columns:1fr; } }
-  .qd-col{ background:var(--bg); padding:38px 34px; position:relative; overflow:hidden; }
+  .qd-col{ background:var(--bg); padding:38px 34px; position:relative; overflow:hidden; display:flex; flex-direction:column; }
   .qd-col::before{
     content:''; position:absolute; top:0; left:0; right:0; height:3px;
   }
@@ -417,7 +402,7 @@
   .qd-col.q .dotc{ background:var(--cyan); clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%); }
   .qd-col.d .dotc{ background:var(--red); border-radius:50%; }
   .qd-head h3{ font-family:var(--head); font-size:14px; letter-spacing:.14em; text-transform:uppercase; font-weight:600; }
-  .qd-list{ list-style:none; }
+  .qd-list{ list-style:none; flex:1; display:flex; flex-direction:column; justify-content:space-between; }
   .qd-list li{
     display:flex; align-items:baseline; gap:12px;
     padding:11px 0; border-bottom:1px dashed var(--line);
@@ -440,6 +425,41 @@
   @media (max-width:900px){ .passions{ grid-template-columns:1fr; } }
   .passion-text p{ font-size:15.5px; line-height:1.9; color:#c3c9dc; margin-bottom:18px; }
   .passion-text b{ color:var(--red); }
+
+  /* ---------- passion items (aéré, puces + icônes) ---------- */
+  .passion-list{ list-style:none; display:flex; flex-direction:column; gap:22px; margin-bottom:8px; }
+  .passion-item{
+    display:flex; align-items:flex-start; gap:16px;
+    padding:16px 18px;
+    border:1px solid var(--line); background:rgba(255,255,255,.015);
+    clip-path:polygon(0 0, 100% 0, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    transition:border-color .3s ease, background .3s ease;
+  }
+  .passion-item:hover{ border-color:var(--red); background:rgba(255,37,69,.05); }
+  .passion-item .picto{
+    flex:none; width:36px; height:36px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:17px;
+    background:linear-gradient(135deg, rgba(255,37,69,.18), rgba(139,59,255,.18));
+    border:1px solid var(--line);
+    clip-path:polygon(8px 0,100% 0,100% 100%,0 100%,0 8px);
+  }
+  .passion-item .txt h4{
+    font-family:var(--head); font-size:14px; letter-spacing:.05em; font-weight:600;
+    text-transform:uppercase; color:var(--ink); margin-bottom:6px;
+  }
+  .passion-item .txt p{
+    font-size:14.5px; line-height:1.65; color:#c3c9dc; margin:0;
+  }
+
+  /* ---------- note en marge (narrateur) ---------- */
+  .margin-note{
+    margin-top:22px; padding:14px 16px;
+    border-left:2px solid var(--gold);
+    font-family:var(--mono); font-size:12.5px; line-height:1.6;
+    color:var(--ink-dim); font-style:italic;
+  }
+  .margin-note span{ color:var(--gold); font-style:normal; }
 
   .tag-cloud{ display:flex; flex-wrap:wrap; gap:10px; margin-top:26px; }
   .tag{
@@ -561,7 +581,51 @@
   /* ============================================================
      FOOTER / CLOSING
   ============================================================ */
-  #closing{ text-align:center; padding:150px 0 110px; border-bottom:none; }
+  /* ---------- WhatsApp float button ---------- */
+  #wa-float{
+    position:fixed; bottom:26px; right:26px; z-index:600;
+    display:flex; align-items:center; gap:10px;
+    background:linear-gradient(120deg, #22c55e, #16a34a);
+    color:#fff; text-decoration:none;
+    font-family:var(--head); font-size:13px; font-weight:600; letter-spacing:.04em;
+    padding:13px 20px;
+    clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);
+    box-shadow:0 10px 30px rgba(22,163,74,.4);
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  #wa-float:hover{ transform:translateY(-3px); box-shadow:0 14px 34px rgba(22,163,74,.55); }
+  #wa-float svg{ width:18px; height:18px; flex:none; }
+  @media (max-width:560px){
+    #wa-float{ bottom:16px; right:16px; padding:12px 16px; font-size:12px; }
+    #wa-float .wa-label{ display:none; }
+  }
+
+  /* ---------- CTA professionnel ---------- */
+  .cta-block{
+    margin-top:44px; padding-top:40px; border-top:1px solid var(--line);
+    display:flex; flex-direction:column; align-items:center; gap:20px;
+  }
+  .cta-block p{ font-size:15.5px; color:#c3c9dc; max-width:520px; }
+  .cta-buttons{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
+  .cta-btn{
+    display:inline-flex; align-items:center; gap:9px;
+    font-family:var(--head); font-size:13px; font-weight:600; letter-spacing:.05em;
+    text-transform:uppercase; text-decoration:none;
+    padding:13px 22px; cursor:pointer;
+    clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);
+    transition:transform .25s ease, box-shadow .25s ease, background .25s ease, color .25s ease;
+  }
+  .cta-btn.primary{
+    background:linear-gradient(120deg, #22c55e, #16a34a); color:#fff;
+    box-shadow:0 10px 26px rgba(22,163,74,.35);
+  }
+  .cta-btn.secondary{
+    background:transparent; color:var(--ink); border:1px solid var(--line);
+  }
+  .cta-btn:hover{ transform:translateY(-2px); }
+  .cta-btn.secondary:hover{ border-color:var(--red); color:var(--red); }
+
+  #closing{ text-align:center; padding:150px 0 60px; border-bottom:none; }
   .closing-line{
     font-family:var(--display); font-weight:400;
     font-size:clamp(26px, 4.6vw, 48px);
@@ -626,7 +690,6 @@
       flex-direction:column;
     }
     .hero-meta div{ width:100%; }
-    .scroll-hint{ display:none; }
 
     /* Section titles / eyebrows */
     .eyebrow{ font-size:10.5px; margin-bottom:16px; }
@@ -726,7 +789,6 @@
       <div>CLASSIFICATION<span>Analyste Cybersécurité</span></div>
       <div>NIVEAU D'ACCÈS<span style="color:var(--amber);">Rapproché</span></div>
     </div>
-    <div class="scroll-hint"><div class="bar"></div>DÉFILER</div>
   </section>
 
   <!-- ============ IDENTITY ============ -->
@@ -750,9 +812,10 @@
           <div class="field reveal"><div class="k">Origines</div><div class="v">Benga (père) · Awandji (mère)</div></div>
         </div>
         <div class="id-text reveal">
-          <p>Avec son sens de l'humour atypique, il trouve toujours, quand il est de bonheur, un jeu de mots pour taquiner ou pour faire rire son interlocuteur.</p>
-          <p>Génie des sciences et des littératures — je vous conseillerais plutôt de lui demander ce qu'il ne sait <em>pas</em> faire, la liste sera bien plus courte.</p>
-          <p>Il aime les langues et met très souvent ses pensées sous forme de poème. Originaire de deux ethnies du Gabon, il met un point d'honneur à respecter ces cultures.</p>
+          <p>Avec son sens de l'humour atypique, il trouve toujours quand il est de bonheur un jeu de mots pour <b>emmerder</b> ou pour faire rire son interlocuteur.</p>
+          <p>Il aime les langues et met très souvent ses pensées sous forme de poème.</p>
+          <p>Originaire de deux ethnies du Gabon — Benga du côté de son père et Awandji du côté de sa mère — il met un point d'honneur à respecter ces cultures.</p>
+          <div class="margin-note"><span>Note en marge —</span> « Génie des sciences et des littératures, je vous conseillerai de lui demander ce qu'il ne sait pas faire, la liste sera moins longue. »</div>
         </div>
       </div>
     </div>
@@ -806,10 +869,37 @@
     <h2 class="section-title reveal">Passions</h2>
     <div class="passions">
       <div class="passion-text reveal">
-        <p>C'est un geek et un vrai passionné — moi-même, ça me fait peur parfois. Il aime le sport sous toutes ses formes et le pratique activement : <b>foot, rugby, basket</b>, sans oublier son goût pour la <b>formule 1</b> et le <b>tennis</b>.</p>
-        <p>Il aime aussi tout ce qui touche à la science, un domaine où je suis largement dépassé par lui. Il mélange science, mythologie, spiritualité et religion pour en faire un ensemble fascinant — disons simplement qu'il est fan de <b>découverte</b>.</p>
-        <p>Autre grande passion : la <b>photographie</b>. Il s'y investit à fond, même dans les plus petits projets, et sait comment motiver et encourager les personnes qu'il photographie.</p>
-        <p>Sa passion la plus singulière reste le <b>corps humain</b>. Son regard insistant peut sembler intense — en réalité, il étudie simplement les formes et les courbes avec la curiosité d'un scientifique.</p>
+        <p>C'est un geek et un vrai passionné — moi-même, ça me fait peur parfois.</p>
+        <ul class="passion-list">
+          <li class="passion-item">
+            <div class="picto">⚽</div>
+            <div class="txt">
+              <h4>Sport</h4>
+              <p>Il aime le sport sous toutes ses formes et le pratique activement : foot, rugby, basket, sans oublier son goût pour la <b>formule 1</b> et le <b>tennis</b>.</p>
+            </div>
+          </li>
+          <li class="passion-item">
+            <div class="picto">🔭</div>
+            <div class="txt">
+              <h4>Science &amp; découverte</h4>
+              <p>Il aime tout ce qui touche à la science, un domaine où je suis largement dépassé par lui. Il mélange science, mythologie, spiritualité et religion pour en faire un ensemble fascinant — disons qu'il est fan de découverte.</p>
+            </div>
+          </li>
+          <li class="passion-item">
+            <div class="picto">📷</div>
+            <div class="txt">
+              <h4>Photographie</h4>
+              <p>Bouah qu'il est doué ! En même temps, qu'est-ce qu'il fait et ce n'est pas beau ? C'est trop mignon de le voir s'investir dans des choses même quand il a un rôle minime <em>(je sortirais bien avec lui, il sait comment te motiver et t'encourager)</em>.</p>
+            </div>
+          </li>
+          <li class="passion-item">
+            <div class="picto">🧬</div>
+            <div class="txt">
+              <h4>Corps humain</h4>
+              <p>Sa passion la plus singulière. Son regard insistant peut te faire penser qu'il te juge, alors qu'il est simplement en train d'étudier les courbes de ton corps avec la curiosité d'un scientifique.</p>
+            </div>
+          </li>
+        </ul>
         <div class="tag-cloud">
           <span class="tag">#Otaku</span>
           <span class="tag">#CultureGeek</span>
@@ -852,13 +942,12 @@
       <div class="blurwrap" id="blurwrap">
         <div class="blur-content">
           <div class="sensitive-media">
-            <img src="424615b4-d660-4c73-ba1d-f0c88c747cf8.png" alt="">
+            <img src="https://github.com/Lunara-Jered/Cvsite/blob/main/da1d97a6-ca92-4f4a-900d-c49340a5c8eb.png?raw=true" alt="">
           </div>
-          <p>C'est quelqu'un de très à l'aise avec son corps : il ne trouve aucun problème à se sentir bien dans sa peau ou à s'assumer pleinement, comme si le regard des autres ne lui faisait ni chaud ni froid.</p>
-          <p>Il aime se montrer confiant — comme s'il vivait avec l'envie constante de prouver qu'il prend soin de lui (bon, il va à la salle pour ça, donc...).</p>
-          <p>C'est aussi quelqu'un de discret sur sa vie privée : même moi, je n'ai pas accès à tout, et il n'aime pas particulièrement qu'on parle de ce qu'il partage — ou avec qui.</p>
+          <p>Très à l'aise avec son corps, presque sans filtre — le regard des autres ne semble jamais le déstabiliser.</p>
+          <p>Discret sur sa vie privée malgré tout : même moi, je n'ai pas accès à tout.</p>
         </div>
-        <button class="reveal-btn" id="revealBtn"> Afficher le contenu</button>
+        <button class="reveal-btn" id="revealBtn">🔒 Afficher le contenu</button>
       </div>
     </div>
   </section>
@@ -869,9 +958,24 @@
       « C'était tout ce que vous aviez besoin de savoir sur lui, en surface —
       pour toute relation plus rapprochée, à vous de le découvrir. »
     </div>
+
+    <div class="cta-block reveal">
+      <p>Ce dossier vous a intrigué ? Pour échanger sur mes compétences ou discuter d'une opportunité, n'hésitez pas à me contacter.</p>
+      <div class="cta-buttons">
+        <a class="cta-btn primary" href="https://wa.me/24162127708" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm0 18.06h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.16 8.16 0 0 1-1.26-4.29c0-4.51 3.68-8.19 8.2-8.19 2.19 0 4.25.85 5.79 2.4a8.13 8.13 0 0 1 2.4 5.8c0 4.52-3.68 8.19-8.14 8.19Zm4.5-6.13c-.25-.12-1.46-.72-1.68-.8-.23-.08-.39-.12-.56.12-.16.25-.64.8-.78.96-.14.17-.29.19-.53.06-.25-.12-1.05-.39-2-1.23a7.5 7.5 0 0 1-1.38-1.72c-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.42.08-.16.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.48-.4-.42-.56-.42h-.48c-.16 0-.42.06-.64.31-.22.25-.85.83-.85 2.02s.87 2.34 1 2.5c.12.17 1.71 2.62 4.15 3.67.58.25 1.03.4 1.38.51.58.19 1.11.16 1.53.1.47-.07 1.46-.6 1.66-1.17.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.28Z"/></svg>
+          <span class="wa-label">Parlons-en en privé</span>
+        </a>
+      </div>
+    </div>
   </section>
 
 </main>
+
+<a id="wa-float" href="https://wa.me/24162127708" target="_blank" rel="noopener">
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm0 18.06h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.16 8.16 0 0 1-1.26-4.29c0-4.51 3.68-8.19 8.2-8.19 2.19 0 4.25.85 5.79 2.4a8.13 8.13 0 0 1 2.4 5.8c0 4.52-3.68 8.19-8.14 8.19Zm4.5-6.13c-.25-.12-1.46-.72-1.68-.8-.23-.08-.39-.12-.56.12-.16.25-.64.8-.78.96-.14.17-.29.19-.53.06-.25-.12-1.05-.39-2-1.23a7.5 7.5 0 0 1-1.38-1.72c-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.42.08-.16.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.48-.4-.42-.56-.42h-.48c-.16 0-.42.06-.64.31-.22.25-.85.83-.85 2.02s.87 2.34 1 2.5c.12.17 1.71 2.62 4.15 3.67.58.25 1.03.4 1.38.51.58.19 1.11.16 1.53.1.47-.07 1.46-.6 1.66-1.17.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.28Z"/></svg>
+  <span class="wa-label">Me contacter sur WhatsApp</span>
+</a>
 
 <footer>FIN DU DOSSIER — ACCÈS ENREGISTRÉ · {{DATE}}</footer>
 
